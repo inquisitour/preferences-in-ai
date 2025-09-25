@@ -75,10 +75,6 @@ This will regenerate:
 The full report (with analysis and discussion) is available in  
 [`report/report.pdf`](report/report.pdf).
 
-## Repository Link in Report
-The GitHub repository link is also included in the submitted LaTeX report:  
-[https://github.com/inquisitour/preferences-in-ai](https://github.com/inquisitour/preferences-in-ai)
-
 ## License
 This repository is for academic coursework at TU Wien.  
 Not intended for production use.

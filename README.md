@@ -6,7 +6,7 @@
 
 ## Overview
 This project replicates and extends experiments from  
-[Nardi, Faliszewski, Lackner (AAAI 2022)](https://doi.org/10.1609/aaai.v36i5.20337)  
+[Lackner, Maly, Nardi (AAMAS 2023)](https://dl.acm.org/doi/10.5555/3545946.3598877)  
 on **free-riding in sequential approval voting**, using different *statistical cultures* for preference generation.
 
 Implemented cultures:
@@ -83,4 +83,4 @@ The full report (with analysis and discussion) is available in
 [`report/report.pdf`](report/report.pdf).
 
 ## License
-This repository is for academic coursework at TU Wien.  
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

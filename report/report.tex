@@ -50,11 +50,22 @@ These experiments confirm that statistical cultures strongly influence the
 perceived robustness of voting rules. Future work may explore richer parameter
 grids and robustness to noise.
 
-\bibliographystyle{plain}
-\bibliography{references}
-
 \section*{Repository}
 The full project code and report sources are available at: \\
 \href{https://github.com/inquisitour/preferences-in-ai}{github.com/inquisitour/preferences-in-ai}
+
+\appendix
+\section{Code Documentation Summary}
+\begin{itemize}
+  \item \textbf{core/} – Base types, welfare functions, and voting rule interface.
+  \item \textbf{statistical\_cultures/} – Preference generators (p-IC, disjoint, resampling, hamming noise).
+  \item \textbf{voting\_rules/} – Implementations of sequential utilitarian and seq-PAV.
+  \item \textbf{free\_riding/} – Manipulation detector, welfare/risk analysis tools.
+  \item \textbf{experiments/} – Main experiment runner for end-to-end evaluation.
+  \item \textbf{tests/} – Unit tests for cultures, rules, and free-riding checks.
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}

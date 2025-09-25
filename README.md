@@ -29,9 +29,12 @@ free_riding/            # manipulation detectors, welfare & risk metrics
 experiments/            # experiment runner (main entry point)
 report/                 # LaTeX report, tables, references
 tests/                  # unit tests
+docs/                   # detailed code documentation
 requirements.txt
 .gitignore
 ```
+
+👉 For a full explanation of each module, see [`docs/CodeDocumentation.md`](docs/CodeDocumentation.md).
 
 ## Installation
 Clone the repo and install dependencies:
@@ -54,17 +57,21 @@ python -m experiments.run_experiments --batch all --n_voters 20 --issues 5 --can
 ```
 
 ## How to Reproduce
-To exactly reproduce the results in the report:
-- Number of voters: **20**
-- Number of issues: **5**
+Exact parameters used in the report:
+- Voters: **20**
+- Issues: **5**
 - Candidates per issue: **4**
-- Number of seeds (repetitions): **30**
-- Cultures tested: **p-IC, Disjoint, Resampling**
-- Rules tested: **Utilitarian, PAV (seq-Thiele)**
+- Seeds: **30**
+- Cultures: **p-IC, Disjoint, Resampling**
+- Rules: **Utilitarian, PAV (seq-Thiele)**
 
-This will regenerate:
-- `results/combined.csv` (full numerical results)
-- `report/tables/combined.tex` (LaTeX table for direct inclusion in the report)
+## Running Tests
+From the project root, run:
+```bash
+python -m pytest tests/
+```
+
+This ensures that imports (`statistical_cultures`, `core`, etc.) resolve correctly.
 
 ## Results
 - CSV results: `results/combined.csv`
@@ -75,10 +82,5 @@ This will regenerate:
 The full report (with analysis and discussion) is available in  
 [`report/report.pdf`](report/report.pdf).
 
-## Repository Link in Report
-The GitHub repository link is also included in the submitted LaTeX report:  
-[https://github.com/inquisitour/preferences-in-ai](https://github.com/inquisitour/preferences-in-ai)
-
 ## License
 This repository is for academic coursework at TU Wien.  
-Not intended for production use.

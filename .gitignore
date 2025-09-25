@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+env/
+venv/
+
+# Jupyter & IPython
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Results
+results/
+report/tables/*.tex
+
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.bbl
+*.blg
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+
+# OS
+.DS_Store
+Thumbs.db

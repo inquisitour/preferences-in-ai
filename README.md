@@ -1,86 +1,101 @@
-# Preferences in AI Project
+# Preferences in AI – Free-Riding in Sequential Voting
 
-📌 TU Wien – Logic & Computation  
-📌 Course: Preferences in AI  
-📌 Author: Pratik Deshmukh  
+This project replicates and extends the experiments from  
+**Lackner & al. (2023), "Free-Riding in Sequential Multi-Winner Voting"**.
 
-## Overview
-This project replicates and extends experiments from  
-[Lackner, Maly, Nardi (AAMAS 2023)](https://dl.acm.org/doi/10.5555/3545946.3598877)  
-on **free-riding in sequential approval voting**, using different *statistical cultures* for preference generation.
+We study **free-riding** (strategic manipulation) in **multi-issue elections** under different **statistical cultures** and voting rules.
 
-Implemented cultures:
-- **p-IC** (per-issue impartial culture)
-- **Disjoint Groups**
-- **(p, φ)-Resampling model**
+---
 
-Implemented voting rules:
-- Sequential **Utilitarian**
-- Sequential **PAV** (via Thiele scores)
+## Implemented Cultures
 
-The experiments evaluate **welfare** (utilitarian, egalitarian, Nash) and **manipulation risks** (success & harm rates).
+- **p-IC** – per-issue impartial culture (preferences sampled independently).
+- **Disjoint Groups** – voters partitioned into groups with aligned preferences.
+- **Resampling Model** – $(p, \phi)$-resampling controlling correlation strength.
+- **Hamming Noise** – preferences sampled from a base culture, then perturbed by flipping approvals with probability $\epsilon$.
 
-## Repository Structure
-```
-core/                   # types, dataclasses, utilities
-statistical_cultures/   # preference generation models
-voting_rules/           # voting rules (utilitarian, seq-Thiele/PAV)
-free_riding/            # manipulation detectors, welfare & risk metrics
-experiments/            # experiment runner (main entry point)
-report/                 # LaTeX report, tables, references
-tests/                  # unit tests
-docs/                   # detailed code documentation
-requirements.txt
-.gitignore
-```
+---
 
-👉 For a full explanation of each module, see [`docs/CodeDocumentation.md`](docs/CodeDocumentation.md).
+## Implemented Voting Rules
 
-## Installation
-Clone the repo and install dependencies:
-```bash
-git clone https://github.com/inquisitour/preferences-in-ai.git
-cd preferences-in-ai
-pip install -r requirements.txt
-```
+- **Sequential Utilitarian** – picks candidate with most approvals per issue.
+- **Sequential PAV** – proportional approval voting with harmonic weights.
+- **Sequential CC** – Chamberlin–Courant, rewarding first approvals.
+- **Sequential OWA rules**:
+  - **Leximin OWA** – maximizes worst-off voter’s satisfaction.
+  - **Mean OWA** – averages satisfaction across voters.
+
+---
+
+## Evaluation Metrics
+
+- **Welfare metrics:**
+  - Utilitarian welfare
+  - Egalitarian welfare
+  - Nash welfare
+- **Manipulation risk metrics:**
+  - Trials (manipulation attempts)
+  - Successes (beneficial manipulations)
+  - Harms (backfiring manipulations)
+  - Success rate
+  - Harm rate
+
+---
 
 ## Running Experiments
-To run all experiments (with default parameters and save results + LaTeX tables):
+
+Run all experiments and save results:
+
 ```bash
-run_all.bat   # Windows
-./run_all.sh  # Linux / macOS
+python -m experiments.run_experiments --batch all --n_voters 20 --issues 5 --cands 4 --seeds 30   --csv results/combined.csv --latex report/tables/combined.tex --summary
 ```
 
-Or run manually:
+This produces:
+- `results/combined.csv` – raw experiment results
+- `report/tables/combined.tex` – LaTeX summary table
+
+---
+
+## Plotting Results
+
+Generate plots for welfare and risk comparisons:
+
 ```bash
-python -m experiments.run_experiments --batch all --n_voters 20 --issues 5 --cands 4 --seeds 30 --latex report/tables/combined.tex --csv results/combined.csv --summary
+python -m experiments.plot_results
 ```
 
-## How to Reproduce
-Exact parameters used in the report:
-- Voters: **20**
-- Issues: **5**
-- Candidates per issue: **4**
-- Seeds: **30**
-- Cultures: **p-IC, Disjoint, Resampling**
-- Rules: **Utilitarian, PAV (seq-Thiele)**
+This saves plots to `report/figures/`.
 
-## Running Tests
-From the project root, run:
-```bash
-python -m pytest tests/
-```
-
-This ensures that imports (`statistical_cultures`, `core`, etc.) resolve correctly.
-
-## Results
-- CSV results: `results/combined.csv`
-- LaTeX tables: `report/tables/combined.tex`
-- Final report: `report/report.pdf`
+---
 
 ## Report
-The full report (with analysis and discussion) is available in  
-[`report/report.pdf`](report/report.pdf).
 
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+The full report (LaTeX + PDF) is in `report/`.  
+It includes:
+- Background on models, rules, and cultures
+- Combined results table
+- Global comparison figures
+- Per-culture figures (appendix)
+- Discussion and conclusion
+
+---
+
+## Repository Structure
+
+```
+core/                # Core types and welfare metrics
+statistical_cultures/ # Preference generators (p-IC, disjoint, resampling, hamming)
+voting_rules/        # Implementations of utilitarian, PAV, CC, OWA rules
+free_riding/         # Manipulation detector, risk/welfare evaluation
+experiments/         # Experiment runner and plotting scripts
+report/              # LaTeX sources, figures, generated tables
+tests/               # Unit tests
+```
+
+---
+
+## References
+
+- Lackner, M., Maly, J., & Schmidt-Kraepelin, U. (2023).  
+  *Free-Riding in Sequential Multi-Winner Voting*.  
+  [arXiv:2302.06685](https://arxiv.org/abs/2302.06685)

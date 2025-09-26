@@ -1,11 +1,12 @@
 # File: experiments/run_experiments.py
-# (Final version with LaTeX export, grouping, batch all, etc.)
+# Final version with Hamming noise, LaTeX export, batch mode, summaries
 
 from __future__ import annotations
 
 import argparse
 import json
-from typing import Dict, List
+import os
+from typing import Dict, List, Callable
 import pandas as pd
 
 from core.types import MultiIssueElection
@@ -16,20 +17,35 @@ from free_riding.risk import evaluate_risk
 from statistical_cultures.p_ic import sample_p_ic, PICConfig
 from statistical_cultures.disjoint import sample_disjoint, DisjointConfig
 from statistical_cultures.resampling import sample_resampling, ResamplingConfig
+from statistical_cultures.hamming_noise import add_hamming_noise
+from statistical_cultures.hamming_noise import HammingConfig, sample_hamming
+
 
 # Rules
-from voting_rules.utilitarian import run_seq_utilitarian
-from voting_rules.sequential_thiele import run_seq_pav
+from voting_rules.utilitarian import sequential_utilitarian
+from voting_rules.sequential_thiele import sequential_thiele
+from voting_rules.owa import leximin_owa, mean_owa
 
-RULES = {
-    "utilitarian": run_seq_utilitarian,
-    "pav": run_seq_pav,
+
+# =====================
+# RULES
+# =====================
+RULES: Dict[str, Callable[[MultiIssueElection], object]] = {
+    "utilitarian": lambda elec: sequential_utilitarian(elec),
+    "pav": lambda elec: sequential_thiele(elec, rule="pav"),
+    "cc": lambda elec: sequential_thiele(elec, rule="cc"),
+    "owa_leximin": lambda elec: leximin_owa(elec),
+    "owa_mean": lambda elec: mean_owa(elec),
 }
 
-CULTURES = ["p_ic", "disjoint", "resampling"]
+# Now includes Hamming
+CULTURES = ["p_ic", "disjoint", "resampling", "hamming"]
 
 
-def run_single_experiment(elec: MultiIssueElection, rules: Dict[str, callable]):
+# =====================
+# EXPERIMENT RUNNERS
+# =====================
+def run_single_experiment(elec: MultiIssueElection, rules: Dict[str, Callable]) -> Dict:
     results = {}
     for name, func in rules.items():
         out = func(elec)
@@ -51,22 +67,43 @@ def run_batch(
     p: float = 0.5,
     phi: float = 0.5,
     groups: int = 2,
+    noise_prob: float = 0.1,
 ) -> pd.DataFrame:
     cands_per_issue = [cands] * issues
     rows = []
     for s in range(seeds):
+        # ---- culture selection ----
         if culture == "p_ic":
             cfg = PICConfig(n_voters=n_voters, candidates_per_issue=cands_per_issue, p=p, seed=s)
             elec = sample_p_ic(cfg)
         elif culture == "disjoint":
-            cfg = DisjointConfig(n_voters=n_voters, candidates_per_issue=cands_per_issue, n_groups=groups, p=p, seed=s)
+            cfg = DisjointConfig(
+                n_voters=n_voters, candidates_per_issue=cands_per_issue,
+                n_groups=groups, p=p, seed=s
+            )
             elec = sample_disjoint(cfg)
         elif culture == "resampling":
-            cfg = ResamplingConfig(n_voters=n_voters, candidates_per_issue=cands_per_issue, p=p, phi=phi, seed=s)
+            cfg = ResamplingConfig(
+                n_voters=n_voters, candidates_per_issue=cands_per_issue,
+                p=p, phi=phi, seed=s
+            )
             elec = sample_resampling(cfg)
+        elif culture == "hamming":
+            cfg = HammingConfig(
+                base="p_ic",   # 👈 default base culture
+                n_voters=n_voters,
+                candidates_per_issue=cands_per_issue,
+                p=p,
+                phi=phi,
+                groups=groups,
+                noise_prob=0.1,   # 👈 default noise
+                seed=s
+            )
+            elec = sample_hamming(cfg)
         else:
             raise ValueError("Unknown culture")
 
+        # ---- rule application ----
         rule_func = RULES[rule]
         out = rule_func(elec)
         welfare = welfare_summary(elec, out)
@@ -92,9 +129,7 @@ def summarize_results(df: pd.DataFrame) -> pd.DataFrame:
     return summary
 
 
-import os
 def df_to_latex_table(df: pd.DataFrame, file: str, group_columns: bool = True) -> None:
-    # Ensure parent directory exists
     os.makedirs(os.path.dirname(file), exist_ok=True)
 
     latex_str = df.to_latex(
@@ -111,15 +146,13 @@ def df_to_latex_table(df: pd.DataFrame, file: str, group_columns: bool = True) -
     if group_columns and "utilitarian" in df.columns:
         cols = list(df.columns)
         welfare_cols = [c for c in cols if c in ["utilitarian", "egalitarian", "nash"]]
-        risk_cols = [c for c in cols if c in ["trials", "successes", "harms", "success\_rate", "harm\_rate"]]
-        other_cols = [c for c in cols if c not in welfare_cols + risk_cols]
+        risk_cols = [c for c in cols if c in ["trials", "successes", "harms", "success_rate", "harm_rate"]]
 
         group_line = (
             " & " * 3   # placeholders for culture, rule, seeds
             + f"\\multicolumn{{{len(welfare_cols)}}}{{c}}{{Welfare}} & "
             + f"\\multicolumn{{{len(risk_cols)}}}{{c}}{{Risk}} \\\\"
         )
-
 
         latex_lines = latex_str.splitlines()
         latex_lines.insert(3, group_line)
@@ -130,6 +163,9 @@ def df_to_latex_table(df: pd.DataFrame, file: str, group_columns: bool = True) -
     print(f"Saved LaTeX table to {file}")
 
 
+# =====================
+# CLI ENTRYPOINT
+# =====================
 def main():
     parser = argparse.ArgumentParser(description="Run free-riding experiments.")
     parser.add_argument("--culture", choices=CULTURES, help="single culture run")
@@ -141,6 +177,7 @@ def main():
     parser.add_argument("--phi", type=float, default=0.5)
     parser.add_argument("--groups", type=int, default=2)
     parser.add_argument("--seeds", type=int, default=1)
+    parser.add_argument("--noise_prob", type=float, default=0.1)
     parser.add_argument("--csv", type=str, default=None)
     parser.add_argument("--summary", action="store_true")
     parser.add_argument("--latex", type=str, default=None)
@@ -161,6 +198,7 @@ def main():
                     p=args.p,
                     phi=args.phi,
                     groups=args.groups,
+                    noise_prob=args.noise_prob,
                 )
                 summary = summarize_results(df)
                 all_summaries.append(summary)
@@ -185,6 +223,7 @@ def main():
             p=args.p,
             phi=args.phi,
             groups=args.groups,
+            noise_prob=args.noise_prob,
         )
         if args.csv:
             os.makedirs(os.path.dirname(args.csv), exist_ok=True)
@@ -197,16 +236,19 @@ def main():
             if args.latex:
                 df_to_latex_table(summary, args.latex)
     else:
-        cands = [args.cands] * args.issues
         if args.culture == "p_ic":
-            cfg = PICConfig(n_voters=args.n_voters, candidates_per_issue=cands, p=args.p, seed=args.seeds)
+            cfg = PICConfig(n_voters=args.n_voters, candidates_per_issue=[args.cands]*args.issues, p=args.p, seed=args.seeds)
             elec = sample_p_ic(cfg)
         elif args.culture == "disjoint":
-            cfg = DisjointConfig(n_voters=args.n_voters, candidates_per_issue=cands, n_groups=args.groups, p=args.p, seed=args.seeds)
+            cfg = DisjointConfig(n_voters=args.n_voters, candidates_per_issue=[args.cands]*args.issues, n_groups=args.groups, p=args.p, seed=args.seeds)
             elec = sample_disjoint(cfg)
         elif args.culture == "resampling":
-            cfg = ResamplingConfig(n_voters=args.n_voters, candidates_per_issue=cands, p=args.p, phi=args.phi, seed=args.seeds)
+            cfg = ResamplingConfig(n_voters=args.n_voters, candidates_per_issue=[args.cands]*args.issues, p=args.p, phi=args.phi, seed=args.seeds)
             elec = sample_resampling(cfg)
+        elif args.culture == "hamming":
+            cfg = PICConfig(n_voters=args.n_voters, candidates_per_issue=[args.cands]*args.issues, p=args.p, seed=args.seeds)
+            base = sample_p_ic(cfg)
+            elec = add_hamming_noise(base, noise_prob=args.noise_prob, seed=args.seeds)
         else:
             raise ValueError("Unknown culture")
 

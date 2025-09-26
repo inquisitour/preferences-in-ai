@@ -80,7 +80,8 @@ tests/                # Unit tests
 docs/                 # Detailed code documentation
 ```
 
-👉 **Detailed code documentation:** see [`docs/CodeDocumentation.md`](docs/CodeDocumentation.md).
+👉 **Detailed Code Documentation:** see [`docs/CodeDocumentation.md`](docs/CodeDocumentation.md)
+👉 **Generated Report:** see [`report/report.pdf`](report/report.pdf).
 
 ---
 

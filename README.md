@@ -27,70 +27,60 @@ We study **free-riding** (strategic manipulation) in **multi-issue elections** u
 
 ---
 
-## Evaluation Metrics
+## Quickstart
 
-- **Welfare metrics:**
-  - Utilitarian welfare
-  - Egalitarian welfare
-  - Nash welfare
-- **Manipulation risk metrics:**
-  - Trials (manipulation attempts)
-  - Successes (beneficial manipulations)
-  - Harms (backfiring manipulations)
-  - Success rate
-  - Harm rate
+### 1) Install
+```bash
+pip install -r requirements.txt
+```
 
----
-
-## Running Experiments
-
-Run all experiments and save results:
-
+### 2) Run all experiments
 ```bash
 python -m experiments.run_experiments --batch all --n_voters 20 --issues 5 --cands 4 --seeds 30   --csv results/combined.csv --latex report/tables/combined.tex --summary
 ```
-
-This produces:
+Outputs:
 - `results/combined.csv` – raw experiment results
 - `report/tables/combined.tex` – LaTeX summary table
 
----
-
-## Plotting Results
-
-Generate plots for welfare and risk comparisons:
-
+### 3) Plot results
 ```bash
 python -m experiments.plot_results
 ```
+Plots are saved to `report/figures/`.
 
-This saves plots to `report/figures/`.
-
----
-
-## Report
-
-The full report (LaTeX + PDF) is in `report/`.  
-It includes:
-- Background on models, rules, and cultures
-- Combined results table
-- Global comparison figures
-- Per-culture figures (appendix)
-- Discussion and conclusion
+### 4) Build the report (optional)
+Open `report/report.tex` in your LaTeX editor and compile. The table and figures are included automatically.
 
 ---
 
-## Repository Structure
+## Running Tests
+
+Make sure you run **from the repository root**:
+```bash
+# Option A
+python -m pytest tests/
+
+# Option B (quiet)
+pytest -q tests/
+```
+If imports fail, verify you are in the repo root and that dependencies are installed.
+
+---
+
+## Project Layout
 
 ```
-core/                # Core types and welfare metrics
+core/                 # Core types and welfare metrics
 statistical_cultures/ # Preference generators (p-IC, disjoint, resampling, hamming)
-voting_rules/        # Implementations of utilitarian, PAV, CC, OWA rules
-free_riding/         # Manipulation detector, risk/welfare evaluation
-experiments/         # Experiment runner and plotting scripts
-report/              # LaTeX sources, figures, generated tables
-tests/               # Unit tests
+voting_rules/         # Implementations of utilitarian, PAV, CC, OWA rules
+free_riding/          # Manipulation detector, risk/welfare evaluation
+experiments/          # Experiment runner and plotting scripts
+report/               # LaTeX sources, figures, generated tables
+tests/                # Unit tests
+docs/                 # Detailed code documentation
 ```
+
+👉 **Detailed code documentation:** see [`docs/CodeDocumentation.md`](docs/CodeDocumentation.md).
 
 ---
 

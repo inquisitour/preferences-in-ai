@@ -18,12 +18,11 @@ We study **free-riding** (strategic manipulation) in **multi-issue elections** u
 
 ## Implemented Voting Rules
 
-- **Sequential Utilitarian** – picks candidate with most approvals per issue.
-- **Sequential PAV** – proportional approval voting with harmonic weights.
-- **Sequential CC** – Chamberlin–Courant, rewarding first approvals.
-- **Sequential OWA rules**:
+- **Sequential Utilitarian** – picks candidate with most approvals per issue (baseline).
+- **Sequential Thiele Rules** – parametric family including seq-PAV, seq-CC, and intermediate $x$-values.
+- **Sequential OWA Rules**:
   - **Leximin OWA** – maximizes worst-off voter’s satisfaction.
-  - **Mean OWA** – averages satisfaction across voters.
+  - **Parametric OWA ($x=1,5,10,15$)** – interpolating between utilitarian and leximin.
 
 ---
 
@@ -70,18 +69,18 @@ If imports fail, verify you are in the repo root and that dependencies are insta
 ## Project Layout
 
 ```
-core/                 # Core types and welfare metrics
+core/                 # Core types and interfaces
 statistical_cultures/ # Preference generators (p-IC, disjoint, resampling, hamming)
-voting_rules/         # Implementations of utilitarian, PAV, CC, OWA rules
-free_riding/          # Manipulation detector, risk/welfare evaluation
+voting_rules/         # Implementations of utilitarian, Thiele, and OWA rules
+free_riding/          # Manipulation detector and risk evaluation
 experiments/          # Experiment runner and plotting scripts
 report/               # LaTeX sources, figures, generated tables
 tests/                # Unit tests
 docs/                 # Detailed code documentation
 ```
 
-👉 **Detailed Code Documentation:** see [`docs/CodeDocumentation.md`](docs/CodeDocumentation.md)
-👉 **Generated Report:** see [`report/report.pdf`](report/report.pdf).
+👉 **Detailed Code Documentation:** see [`docs/CodeDocumentation.md`](docs/CodeDocumentation.md)  
+👉 **Generated Report:** see [`report/report.pdf`](report/report.pdf)  
 
 ---
 
@@ -89,4 +88,4 @@ docs/                 # Detailed code documentation
 
 - Lackner, M., Maly, J., & Schmidt-Kraepelin, U. (2023).  
   *Free-Riding in Sequential Multi-Winner Voting*.  
-  [arXiv:2302.06685](https://arxiv.org/abs/2302.06685)
+  [Free Riding (PDF)](https://dbai.tuwien.ac.at/staff/jmaly/freeriding.pdf)

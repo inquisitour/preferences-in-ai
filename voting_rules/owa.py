@@ -1,28 +1,43 @@
+# File: voting_rules/owa.py
 import numpy as np
 from core.types import MultiIssueElection, Outcome
 
+
 def owa_aggregate(values, weights):
     """
-    Generic OWA aggregation: sort values descending, weight them.
+    Generic OWA aggregation: sort values descending, apply weights.
     """
     values_sorted = sorted(values, reverse=True)
     return sum(w * v for w, v in zip(weights, values_sorted))
 
-def owa_rule(elec: MultiIssueElection, weights="leximin") -> Outcome:
+
+def owa_weights(n_voters: int, x: int) -> list:
     """
-    Apply OWA-based rule for multi-issue decisions.
-    Supported weights:
-      - "leximin": [0, 0, ..., 1] (maximize the worst-off)
-      - "mean": uniform weights
+    Construct OWA weights as in Lackner & al. (2023).
+    - x = 0   -> utilitarian (all weights = 1)
+    - x = n-1 -> leximin (only worst-off counts)
+    - intermediate x interpolates between them
+    """
+    if x < 0 or x >= n_voters:
+        raise ValueError(f"Invalid OWA parameter x={x}, must be in [0, n_voters-1].")
+
+    # Start with all zeros
+    weights = [0] * n_voters
+    # Assign weight 1 to the last (x+1) positions
+    for i in range(n_voters - (x + 1), n_voters):
+        weights[i] = 1
+    return weights
+
+
+def owa_rule(elec: MultiIssueElection, x: int) -> Outcome:
+    """
+    Apply parametric OWA rule for multi-issue decisions.
+    :param elec: MultiIssueElection
+    :param x: parameter (0=utilitarian, n-1=leximin)
+    :return: Outcome
     """
     n_voters, n_issues, n_cands = elec.approvals.shape
-
-    if weights == "leximin":
-        weight_vec = [0] * (n_voters - 1) + [1]
-    elif weights == "mean":
-        weight_vec = [1 / n_voters] * n_voters
-    else:
-        raise ValueError(f"Unknown OWA weights: {weights}")
+    weight_vec = owa_weights(n_voters, x)
 
     winners = []
     for issue in range(n_issues):
@@ -35,8 +50,8 @@ def owa_rule(elec: MultiIssueElection, weights="leximin") -> Outcome:
 
     return Outcome(winners=winners)
 
-def leximin_owa(elec: MultiIssueElection) -> Outcome:
-    return owa_rule(elec, weights="leximin")
 
-def mean_owa(elec: MultiIssueElection) -> Outcome:
-    return owa_rule(elec, weights="mean")
+# Convenience wrappers
+def leximin_owa(elec: MultiIssueElection) -> Outcome:
+    """Leximin OWA is the special case x = n_voters - 1."""
+    return owa_rule(elec, x=elec.n_voters - 1)

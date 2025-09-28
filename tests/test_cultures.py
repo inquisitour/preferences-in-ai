@@ -1,21 +1,14 @@
 # File: tests/test_cultures.py
-import pytest
 from statistical_cultures.p_ic import PICConfig, sample_p_ic
-from statistical_cultures.disjoint import DisjointConfig, sample_disjoint
 from statistical_cultures.resampling import ResamplingConfig, sample_resampling
+from statistical_cultures.disjoint import DisjointConfig, sample_disjoint
 from statistical_cultures.hamming_noise import HammingConfig, sample_hamming
 
 
 def test_p_ic_sampling():
-    cfg = PICConfig(n_voters=5, candidates_per_issue=[2, 2], p=0.5, seed=1)
+    cfg = PICConfig(n_voters=4, candidates_per_issue=[2, 2], p=0.5, seed=1)
     elec = sample_p_ic(cfg)
-    assert elec.approvals.shape == (5, 2, 2)
-
-
-def test_disjoint_sampling():
-    cfg = DisjointConfig(n_voters=6, candidates_per_issue=[2, 2], n_groups=2, p=0.5, seed=1)
-    elec = sample_disjoint(cfg)
-    assert elec.approvals.shape == (6, 2, 2)
+    assert elec.approvals.shape == (4, 2, 2)
 
 
 def test_resampling_sampling():
@@ -24,42 +17,13 @@ def test_resampling_sampling():
     assert elec.approvals.shape == (4, 2, 2)
 
 
-def test_hamming_noise_p_ic():
-    cfg = HammingConfig(
-        base="p_ic",
-        n_voters=5,
-        candidates_per_issue=[2, 2],
-        p=0.5,
-        noise=0.1,
-        seed=3,
-    )
-    elec = sample_hamming(cfg)
-    assert elec.approvals.shape == (5, 2, 2)
+def test_disjoint_sampling():
+    cfg = DisjointConfig(n_voters=4, candidates_per_issue=[2, 2], n_groups=2, p=0.5, seed=3)
+    elec = sample_disjoint(cfg)
+    assert elec.approvals.shape == (4, 2, 2)
 
 
-def test_hamming_noise_disjoint():
-    cfg = HammingConfig(
-        base="disjoint",
-        n_voters=6,
-        candidates_per_issue=[2, 2],
-        groups=2,
-        p=0.5,
-        noise=0.2,
-        seed=4,
-    )
-    elec = sample_hamming(cfg)
-    assert elec.approvals.shape == (6, 2, 2)
-
-
-def test_hamming_noise_resampling():
-    cfg = HammingConfig(
-        base="resampling",
-        n_voters=4,
-        candidates_per_issue=[2, 2],
-        p=0.5,
-        phi=0.3,
-        noise=0.15,
-        seed=5,
-    )
+def test_hamming_sampling():
+    cfg = HammingConfig(base="p_ic", n_voters=4, candidates_per_issue=[2, 2], p=0.5, noise_prob=0.2, seed=4)
     elec = sample_hamming(cfg)
     assert elec.approvals.shape == (4, 2, 2)

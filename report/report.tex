@@ -19,43 +19,40 @@
 \section{Introduction}
 This report presents experiments on free-riding in sequential decision-making
 under different \emph{statistical cultures}, following the framework of
-\cite{lackner2023freeriding}.
+\cite{lackner2023freeriding}. Our goal is to replicate the structure of Section~5
+of that work while extending it with additional statistical cultures.
 
 \section{Background}
 
 \subsection{Multi-Issue Model}
 We study sequential decision-making in \emph{multi-issue elections}, where a set
-of voters must make a series of binary (yes/no) or multi-candidate decisions,
-one per issue. Each voter submits approval preferences for all candidates on
-each issue. A voting rule is then applied issue by issue to determine the
-collective outcome.
+of voters must decide on several issues, each with multiple candidates. Each
+voter submits approval preferences for all candidates on each issue. A voting
+rule is then applied issue by issue to determine the collective outcome.
 
 \subsection{Voting Rules}
-We focus on two families of rules:
+We focus on two families of rules, as in \cite{lackner2023freeriding}:
+
 \begin{itemize}
     \item \textbf{Sequential Utilitarian Rule:} selects in each issue the
-    candidate with the highest total number of approvals.
+    candidate with the highest total number of approvals. This rule is equivalent
+    to the \emph{mean OWA} and is immune to manipulation.
     \item \textbf{Thiele-Based Rules:} a general class where voter satisfaction
-    decreases marginally as more of their approved candidates are selected.  
-    Examples include:
-    \begin{itemize}
-        \item \emph{Proportional Approval Voting (PAV)} with harmonic weights
-        $(1, \tfrac{1}{2}, \tfrac{1}{3}, \dots)$,
-        \item \emph{Chamberlin--Courant (CC)} with weights $(1,0,0,\dots)$.
-    \end{itemize}
+    decreases marginally as more of their approved candidates are selected.
+    We evaluate sequential Thiele rules with parameters $x \in \{1,5,7\}$,
+    where the case $x=0$ corresponds to utilitarian aggregation.
     \item \textbf{OWA-Based Rules:} aggregate voter satisfaction using Ordered
-    Weighted Averages (OWAs). For instance:
-    \begin{itemize}
-        \item \emph{Leximin OWA:} maximizes the welfare of the worst-off voter,
-        \item \emph{Mean OWA:} averages utilities across voters.
-    \end{itemize}
+    Weighted Averages (OWAs). We evaluate parametric OWA rules with
+    $x \in \{1,5,10,15\}$, interpolating between utilitarian ($x=0$) and
+    leximin ($x=n-1$). For completeness, we also include the explicit
+    \emph{leximin OWA}.
 \end{itemize}
 
 \subsection{Statistical Cultures}
-The way preferences are generated strongly influences experimental outcomes.
+The way preferences are generated strongly influences manipulation risks.
 We consider four cultures:
 \begin{itemize}
-    \item \textbf{p-IC}: per-issue impartial culture, sampling preferences
+    \item \textbf{p-IC}: per-issue impartial culture, sampling approvals
     independently with probability $p$.
     \item \textbf{Disjoint Groups}: voters are divided into $g$ groups with
     internally aligned preferences.
@@ -63,49 +60,44 @@ We consider four cultures:
     with parameters $(p, \phi)$ controlling randomness and correlation.
     \item \textbf{Hamming Noise}: preferences are first generated from another
     culture and then perturbed by flipping approvals with small probability.
+    This noise model is slightly different from that used in
+    \cite{lackner2023freeriding}, but serves the same purpose of modeling
+    robustness under perturbations.
 \end{itemize}
 
-\subsection{Welfare and Risk Metrics}
-We evaluate outcomes using two families of metrics:
+\subsection{Risk Metrics}
+We evaluate manipulation opportunities using the following metrics:
 \begin{itemize}
-    \item \textbf{Welfare Metrics:}  
-    \begin{itemize}
-        \item \emph{Utilitarian welfare:} sum of utilities across all voters.  
-        \item \emph{Egalitarian welfare:} minimum utility among all voters.  
-        \item \emph{Nash welfare:} product of voter utilities (geometric balance).  
-    \end{itemize}
-    \item \textbf{Risk Metrics:}  
-    \begin{itemize}
-        \item \emph{Successes:} number of manipulations that improved the manipulator’s outcome.  
-        \item \emph{Harms:} number of manipulations that backfired on the manipulator.  
-        \item \emph{Success rate:} proportion of trials with a successful manipulation.  
-        \item \emph{Harm rate:} proportion of trials with a harmful manipulation.  
-    \end{itemize}
+    \item \textbf{Trials:} total number of manipulation attempts.  
+    \item \textbf{Successes:} number of manipulations that improved the manipulator’s outcome.  
+    \item \textbf{Harms:} number of manipulations that backfired on the manipulator.  
+    \item \textbf{Success rate:} proportion of trials with a successful manipulation.  
+    \item \textbf{Harm rate:} proportion of trials with a harmful manipulation.  
+    \item \textbf{Risk:} ratio of harms to successes.  
 \end{itemize}
 
 \section{Methodology}
-We repeat the experiments from the paper but use several different statistical
-cultures: impartial culture (p-IC), disjoint groups, the $(p, \phi)$-resampling
-model, and the Hamming-noise model. For each, we run multiple seeds and compare
-welfare and risk metrics under sequential utilitarian, seq-PAV, and seq-CC rules.
+We repeat the experiments from Section~5 of \cite{lackner2023freeriding},
+using four statistical cultures: impartial culture (p-IC), disjoint groups,
+the $(p, \phi)$-resampling model, and the Hamming-noise model. For each, we run
+multiple seeds and compare risk metrics under sequential utilitarian,
+sequential Thiele rules ($x=1,5,7$), and OWA rules ($x=1,5,10,15$, plus leximin).
 
 \subsection{Parameters}
 For transparency, we explicitly document the parameters used in our experiments:
 
 \begin{itemize}
-    \item \textbf{p-IC}: resampling probabilities 
-    $p \in \{0.25, 0.5, 0.75\}$, with each issue sampled independently.
-    \item \textbf{Disjoint}: voters are partitioned into $g = 4$ fixed groups, 
-    each with aligned preferences across all $k$ issues.
-    \item \textbf{Resampling}: combinations of $(p,\phi)$ include 
-    $(0.25, 0.25)$ and $(0.5, 0.75)$, where $p$ is the resampling probability 
-    and $\phi$ controls correlation strength.
-    \item \textbf{Hamming noise}: perturbations are introduced by flipping a 
-    voter’s approval with probability $0.1$ or $0.2$ per issue, to model 
-    random noise in preferences.
+    \item \textbf{p-IC}: approval probability $p=0.5$.
+    \item \textbf{Disjoint}: voters are partitioned into $g = 2$ groups with
+    aligned preferences.
+    \item \textbf{Resampling}: parameters $(p,\phi) = (0.5,0.5)$, consistent
+    with the disjoint model.
+    \item \textbf{Hamming noise}: perturbations introduced by flipping a
+    voter’s approval with probability $0.1$ per issue.
 \end{itemize}
-For all cultures, we fix the number of voters $n=50$, issues $k=10$, and
-committee size $m=5$. Each configuration is run with 10 different random seeds.
+
+For all cultures, we fix the number of voters $n=20$, issues $k=5$, and
+$c=4$ candidates per issue. Each configuration is run with 30 random seeds.
 
 \section{Results}
 The combined results table is automatically generated by the experiment
@@ -116,149 +108,87 @@ pipeline. The table below is included directly from the output file:
 \resizebox{\textwidth}{!}{%
 \input{tables/combined.tex}
 }
-\caption{Combined results across cultures and rules. Welfare metrics are
-(utilitarian, egalitarian, Nash), while risk metrics include success and harm
-rates.}
+\caption{Combined results across cultures and rules. Risk metrics include trials,
+successes, harms, success and harm rates, and risk (harms/successes).}
 \label{tab:combined}
 \end{table}
 
-\subsection{Global Comparisons}
+\subsection{Per-Culture Comparisons}
 
+\paragraph{p-IC.}
 \begin{figure}[h!]
 \centering
-\includegraphics[width=\textwidth]{../figures/welfare_comparison_all.pdf}
-\caption{Welfare metrics across cultures and rules. Each subplot shows utilitarian, egalitarian, or Nash welfare.}
-\label{fig:welfare-global}
+\includegraphics[width=0.7\textwidth]{figures/risk_p_ic_thiele.pdf}
+\includegraphics[width=0.7\textwidth]{figures/risk_p_ic_owa.pdf}
+\caption{Manipulation risk under p-IC culture. Top: Thiele rules. Bottom: OWA rules.}
 \end{figure}
 
+\paragraph{Disjoint Groups.}
 \begin{figure}[h!]
 \centering
-\includegraphics[width=\textwidth]{../figures/risk_comparison_all.pdf}
-\caption{Manipulation risk (success and harm rates) across cultures and rules.}
-\label{fig:risk-global}
+\includegraphics[width=0.7\textwidth]{figures/risk_disjoint_thiele.pdf}
+\includegraphics[width=0.7\textwidth]{figures/risk_disjoint_owa.pdf}
+\caption{Manipulation risk under disjoint-group culture. Top: Thiele rules. Bottom: OWA rules.}
+\end{figure}
+
+\paragraph{Resampling Model.}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/risk_resampling_thiele.pdf}
+\includegraphics[width=0.7\textwidth]{figures/risk_resampling_owa.pdf}
+\caption{Manipulation risk under resampling culture. Top: Thiele rules. Bottom: OWA rules.}
+\end{figure}
+
+\paragraph{Hamming Noise.}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/risk_hamming_thiele.pdf}
+\includegraphics[width=0.7\textwidth]{figures/risk_hamming_owa.pdf}
+\caption{Manipulation risk under Hamming-noise culture. Top: Thiele rules. Bottom: OWA rules.}
 \end{figure}
 
 \section{Discussion}
-Our experiments highlight the strong dependence of results on both the choice of
-voting rule and the statistical culture used to generate preferences.
+Our experiments highlight the dependence of manipulation risk on both the
+voting rule and the statistical culture.
 
 \paragraph{Effect of Statistical Cultures.}
-The \emph{p-IC} culture yields relatively balanced welfare outcomes, but
-manipulation risks are non-negligible (see Fig.~\ref{fig:welfare-global} and
-Fig.~\ref{fig:risk-global}). The \emph{disjoint} model shows much lower welfare,
-with preferences polarized across groups. The \emph{resampling} model produces
-higher welfare but introduces manipulation opportunities. Finally, \emph{Hamming
-noise} highlights robustness: small random flips can reduce manipulation
-opportunities but also slightly lower welfare.
+The \emph{p-IC} culture exhibits moderate manipulation opportunities.
+The \emph{disjoint} model produces clearer group structures, sometimes
+increasing manipulation success rates. The \emph{resampling} model yields
+non-negligible risks depending on $\phi$, and the \emph{Hamming noise}
+experiments show that random perturbations can both increase and decrease
+manipulation opportunities, depending on the rule.
 
 \paragraph{Effect of Voting Rules.}
-The \emph{utilitarian rule} maximizes approvals but is highly exposed to
-manipulation. Thiele rules provide different trade-offs: \emph{PAV} offers
-proportionality with some manipulation risk, while \emph{CC} heavily rewards
-first approvals and thus reduces manipulation success at the cost of lower
-welfare. OWA rules show further trade-offs: \emph{Leximin} minimizes risk for
-the worst-off voter, while the \emph{mean OWA} balances welfare and risk.
+The \emph{utilitarian rule} (equivalently mean OWA) is immune to manipulation.
+Thiele rules with larger $x$ increase proportionality but are more exposed to
+free-riding opportunities. OWA rules interpolate between utilitarian and
+leximin: intermediate parameters show manipulation risks, while leximin tends
+to reduce success rates but sometimes increases harms.
 
 \paragraph{Risk Metrics.}
-Disjoint cultures create fewer opportunities for free-riding, while resampling
-and p-IC allow more. Harm rates are never negligible, confirming that voters
-attempting to free-ride risk worsening their outcomes.
+Across all settings, harm rates are non-negligible, confirming that attempts at
+manipulation carry real risks. In particular, when manipulation succeeds, it is
+often accompanied by harmful attempts that worsen outcomes for manipulators.
 
 \section{Conclusion}
 Our experiments confirm that the choice of statistical culture strongly
-influences both welfare outcomes and robustness of voting rules to manipulation.
-Cultures such as disjoint groups lead to low welfare but reduced manipulation
-success, while resampling and p-IC generate higher welfare but greater
-susceptibility to free-riding. The introduction of Hamming noise shows that
-even small perturbations can alter both welfare and risk profiles, highlighting
-the fragility of certain rules.
+influences manipulation risks. Cultures with correlated preferences (e.g.,
+disjoint, resampling) can increase opportunities for manipulation, while random
+noise can unpredictably alter them. 
 
-Across voting rules, utilitarian aggregation achieves high welfare but exposes
-itself to manipulation. Thiele-based rules (PAV, CC) and OWA-based rules
-(leximin, mean) illustrate trade-offs: reducing manipulation success comes at
-the expense of utilitarian efficiency.
+Across voting rules, utilitarian aggregation is immune. Thiele-based rules and
+OWA-based rules illustrate trade-offs: increasing proportionality or fairness
+typically comes at the expense of higher manipulation risk.
 
 Future work should extend these experiments by exploring richer grids of
-parameters $(p,\phi)$, noise rates, and group structures, as well as alternative
-OWA weightings. Replicating the visualization style of
-\cite{lackner2023freeriding} with plots would also allow direct side-by-side
-comparison of manipulation risk across rules.
+parameters $(p,\phi)$, noise rates, and group structures. Replicating the
+visualization style of \cite{lackner2023freeriding} with further plots would
+also allow direct side-by-side comparison of manipulation risks across rules.
 
 \section*{Repository}
 The full project code and report sources are available at: \\
 \href{https://github.com/inquisitour/preferences-in-ai}{github.com/inquisitour/preferences-in-ai}
-
-\clearpage
-\listoffigures
-
-\appendix
-\section{Per-Culture Figures}
-
-\subsection{Per-Issue Impartial Culture (p-IC)}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/welfare_comparison_p_ic.pdf}
-\caption{Welfare comparison for p-IC culture across voting rules.}
-\end{figure}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/risk_comparison_p_ic.pdf}
-\caption{Manipulation risk under p-IC culture.}
-\end{figure}
-
-\subsection{Disjoint Groups}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/welfare_comparison_disjoint.pdf}
-\caption{Welfare comparison for disjoint-group culture.}
-\end{figure}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/risk_comparison_disjoint.pdf}
-\caption{Manipulation risk under disjoint-group culture.}
-\end{figure}
-
-\subsection{Resampling Model}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/welfare_comparison_resampling.pdf}
-\caption{Welfare comparison for resampling culture.}
-\end{figure}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/risk_comparison_resampling.pdf}
-\caption{Manipulation risk under resampling culture.}
-\end{figure}
-
-\subsection{Hamming Noise}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/welfare_comparison_hamming.pdf}
-\caption{Welfare comparison for Hamming-noise culture.}
-\end{figure}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/risk_comparison_hamming.pdf}
-\caption{Manipulation risk under Hamming-noise culture.}
-\end{figure}
-
-\section{Code Documentation Summary}
-\begin{itemize}
-  \item \textbf{core/} – Base types, welfare functions, and voting rule interface.
-  \item \textbf{statistical\_cultures/} – Preference generators (p-IC, disjoint, resampling, hamming noise).
-  \item \textbf{voting\_rules/} – Implementations of utilitarian, PAV, CC, and OWA rules.
-  \item \textbf{free\_riding/} – Manipulation detector, welfare/risk analysis tools.
-  \item \textbf{experiments/} – Main experiment runner for end-to-end evaluation.
-  \item \textbf{tests/} – Unit tests for cultures, rules, and free-riding checks.
-\end{itemize}
 
 \bibliographystyle{plain}
 \bibliography{references}

@@ -13,7 +13,7 @@ def test_detector_and_risk():
 
     assert "trials" in res
     assert "successes" in res
-    assert "harms" in res  # add this check
+    assert "harms" in res
     assert "success_rate" in risk
     assert "harm_rate" in risk
     assert risk["trials"] == res["trials"]

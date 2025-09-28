@@ -17,15 +17,15 @@ class HammingConfig:
     p: float = 0.5              # approval probability
     phi: float = 0.5            # correlation (resampling model)
     groups: int = 2             # number of groups (disjoint model)
-    noise: float = 0.1          # probability of flipping each approval
+    noise_prob: float = 0.1     # probability of flipping each approval
     seed: int = None            # random seed
 
 
-def add_hamming_noise(elec: MultiIssueElection, noise: float, seed=None) -> MultiIssueElection:
-    """Flip each approval with probability `noise`."""
+def add_hamming_noise(elec: MultiIssueElection, noise_prob: float, seed=None) -> MultiIssueElection:
+    """Flip each approval with probability `noise_prob`."""
     rng = np.random.default_rng(seed)
     noisy = elec.approvals.copy()
-    flips = rng.binomial(1, noise, size=noisy.shape)
+    flips = rng.binomial(1, noise_prob, size=noisy.shape)
     noisy = np.abs(noisy - flips)
     return MultiIssueElection(noisy)
 
@@ -64,4 +64,4 @@ def sample_hamming(cfg: HammingConfig) -> MultiIssueElection:
     else:
         raise ValueError(f"Unknown base culture: {cfg.base}")
 
-    return add_hamming_noise(elec, cfg.noise, seed=cfg.seed)
+    return add_hamming_noise(elec, cfg.noise_prob, seed=cfg.seed)

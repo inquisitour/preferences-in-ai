@@ -18,11 +18,11 @@ We study **free-riding** (strategic manipulation) in **multi-issue elections** u
 
 ## Implemented Voting Rules
 
-- **Sequential Utilitarian** – picks candidate with most approvals per issue (baseline).
-- **Sequential Thiele Rules** – parametric family including seq-PAV, seq-CC, and intermediate $x$-values.
-- **Sequential OWA Rules**:
-  - **Leximin OWA** – maximizes worst-off voter’s satisfaction.
-  - **Parametric OWA ($x=1,5,10,15$)** – interpolating between utilitarian and leximin.
+- **Sequential Utilitarian** – selects the candidate with the highest total approvals per issue (equivalent to mean OWA; immune to manipulation).
+- **Sequential Thiele Rules** – a parametric family of rules (e.g., seq-PAV, seq-CC) with parameters x∈{1,5,7} controlling proportionality.
+- **Sequential OWA Rules** – aggregate voter satisfaction via Ordered Weighted Averages (OWAs), following Section 5 of Lackner et al. (2023):
+  - **Leximin OWA** – limiting case maximizing the welfare of the worst-off voter.
+  - **Parametric OWA ($x=1,5,10,15$)** – interpolating smoothly between utilitarian (x=0) and leximin (x=n−1); all weights are strictly positive and normalized (no zeros).
 
 ---
 
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 ### 2) Run all experiments
 ```bash
-python -m experiments.run_experiments --batch all --n_voters 20 --issues 5 --cands 4 --seeds 30   --csv results/combined.csv --latex report/tables/combined.tex --summary
+python -m experiments.run_experiments --batch all --n_voters 20 --issues 5 --cands 4 --seeds 200 --csv results/combined.csv --latex report/tables/combined.tex --summary
 ```
 Outputs:
 - `results/combined.csv` – raw experiment results
@@ -45,7 +45,11 @@ Outputs:
 ```bash
 python -m experiments.plot_results
 ```
-Plots are saved to `report/figures/`.
+Generates:
+
+Risk plots per culture and rule family
+
+Overview plot saved to `report/figures/`.
 
 ### 4) Build the report (optional)
 Open `report/report.tex` in your LaTeX editor and compile. The table and figures are included automatically.

@@ -22,18 +22,19 @@ def evaluate_risk(elec: MultiIssueElection, rule) -> dict:
       - harms: # of harmful manipulations
       - success_rate: successes / trials
       - harm_rate: harms / trials
-      - risk: harms / successes (conditional probability of harmful manipulation)
+      - risk: harms / (successes + harms)  # proportion of harmful manipulations
     """
     res = detect_free_riding(elec, rule)
-    trials = res["trials"]
-    successes = res["successes"]
-    harms = res["harms"]
+    trials = float(res["trials"])
+    successes = float(res["successes"])
+    harms = float(res["harms"])
+    possible = successes + harms
 
     return {
         "trials": trials,
         "successes": successes,
         "harms": harms,
-        "success_rate": successes / trials if trials else 0.0,
-        "harm_rate": harms / trials if trials else 0.0,
-        "risk": harms / successes if successes else 0.0,
+        "success_rate": successes / trials if trials > 0 else 0.0,
+        "harm_rate": harms / trials if trials > 0 else 0.0,
+        "risk": harms / possible if possible > 0 else 0.0,
     }

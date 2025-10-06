@@ -4,73 +4,86 @@ from core.types import MultiIssueElection, Outcome
 
 
 def normalize_outcome(out) -> Outcome:
-    """
-    Ensure that the output of a voting rule is wrapped as an Outcome.
-    Accepts either a list of winners or an Outcome object.
-    """
+    """Wrap rule output as Outcome."""
     if isinstance(out, Outcome):
         return out
-    elif isinstance(out, list):
+    if isinstance(out, list):
         return Outcome(winners=out)
-    else:
-        raise TypeError(f"Unsupported outcome type: {type(out)}")
+    raise TypeError(f"Unsupported outcome type: {type(out)}")
 
 
-def voter_utility(elec: MultiIssueElection, outcome: Outcome, voter: int) -> int:
-    """
-    Compute the utility of a single voter for the given outcome
-    (i.e., how many of the winners they approved).
-    """
+def voter_utility_truthful(elec: MultiIssueElection, outcome: Outcome, voter: int) -> int:
+    """Utility of voter under the *truthful* ballot (count approved winners)."""
     score = 0
-    for issue, cand in enumerate(outcome.winners):
-        score += elec.approvals[voter, issue, cand]
-    return score
+    for i, w in enumerate(outcome.winners):
+        score += elec.approvals[voter, i, w]
+    return int(score)
 
 
-def detect_free_riding(elec: MultiIssueElection, rule, max_flips: int = 1) -> dict:
+def detect_free_riding(elec: MultiIssueElection, rule) -> dict:
     """
-    Detect free-riding manipulations in a multi-issue election.
+    Detect free-riding following the paper + Oliviero’s clarifications.
 
-    Parameters
-    ----------
-    elec : MultiIssueElection
-        Election instance with voter approvals.
-    rule : callable
-        Voting rule mapping MultiIssueElection -> Outcome (or list of winners).
-    max_flips : int
-        Max number of preference flips per voter/issue to consider.
-
-    Returns
-    -------
-    dict with counts of trials, successes, and harms.
+    For each voter v and issue i:
+      • Consider free-riding only if v approved the original winner on i (eligibility).
+      • Manipulation = drop that single approval on issue i; keep all other approvals identical.
+      • Compute new outcome with the manipulated election.
+      • Free-riding is *possible* if the winner of issue i remains unchanged (non-pivotal).
+      • If possible, compare utilities using the *truthful* ballot:
+          Δu = u_truthful(new_out) - u_truthful(baseline_out)
+        Count success if Δu>0, harm if Δu<0; ignore Δu==0.
+    Returns counts:
+      trials (= n_voters*n_issues),
+      eligible (# approved the original winner on that issue),
+      possible (# non-pivotal manipulations),
+      successes, harms.
     """
     baseline = normalize_outcome(rule(elec))
 
     n_voters, n_issues, _ = elec.approvals.shape
-    trials = 0
+    trials = n_voters * n_issues
+
+    eligible = 0
+    possible = 0
     successes = 0
     harms = 0
 
+    # Precompute truthful utilities vs baseline for all voters
+    base_utils = [voter_utility_truthful(elec, baseline, v) for v in range(n_voters)]
+
     for v in range(n_voters):
-        base_util = voter_utility(elec, baseline, v)
+        for i in range(n_issues):
+            orig_winner = baseline.winners[i]
 
-        for issue in range(n_issues):
-            trials += 1
+            # Only consider if voter approved the original winner on this issue
+            if elec.approvals[v, i, orig_winner] != 1:
+                continue
+            eligible += 1
 
-            # Flip all approvals for this voter on this issue
-            flipped = elec.approvals.copy()
-            flipped[v, issue, :] = 1 - flipped[v, issue, :]
+            # Build manipulated election: identical except drop that single approval
+            approvals_new = elec.approvals.copy()
+            approvals_new[v, i, orig_winner] = 0  # drop only this approval
+            new_elec = MultiIssueElection(approvals_new)
 
-            new_elec = MultiIssueElection(flipped)
             new_out = normalize_outcome(rule(new_elec))
 
-            new_util = voter_utility(new_elec, new_out, v)
+            # Free-riding is defined only if the winner on issue i remains unchanged
+            if new_out.winners[i] != orig_winner:
+                continue
+            possible += 1
 
-            if new_out.winners != baseline.winners:
-                if new_util > base_util:
-                    successes += 1
-                elif new_util < base_util:
-                    harms += 1
-                # if equal, neither success nor harm
+            # Evaluate effect using the truthful ballot
+            new_util = voter_utility_truthful(elec, new_out, v)
+            if new_util > base_utils[v]:
+                successes += 1
+            elif new_util < base_utils[v]:
+                harms += 1
+            # else Δu==0 → neither success nor harm
 
-    return dict(trials=trials, successes=successes, harms=harms)
+    return {
+        "trials": trials,
+        "eligible": eligible,
+        "possible": possible,
+        "successes": successes,
+        "harms": harms,
+    }

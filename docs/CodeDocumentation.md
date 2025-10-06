@@ -53,10 +53,19 @@ All rules return an `Outcome` (list of winners per issue).
 ## `free_riding/`
 
 - **`detector.py`**
-  - `detect_free_riding(elec, rule)`: simulates manipulations by flipping a voter’s approvals and checks if the election outcome changes in favor of the manipulator.
+  - `detect_free_riding(elec, rule)`: Implements the free-riding definition consistent with \cite{lackner2023freeriding}.
+    For each voter and issue:
+
+      -  Checks eligibility (the voter originally approved the winner).
+
+      -  Tests a restricted deviation where the voter drops only that approval, keeping all other approvals fixed.
+
+      -  The deviation is counted as possible only if the issue winner remains unchanged (non-pivotal).
+
+      -  The election is recomputed with the manipulated ballot, and the utility difference is computed using the voter’s truthful preferences.
 
 - **`risk.py`**
-  - `evaluate_risk(elec, rule)`: wraps detector results into summary statistics (trials, successes, harms, success rate, harm rate, risk = harms/successes).
+  - `evaluate_risk(elec, rule)`: aggregates detector outputs into summary statistics: trials, eligible, possible, successes, harms,success_rate, harm_rate, and risk = harms / possible (conditional probability of harmful manipulation).
 
 ---
 
@@ -64,14 +73,14 @@ All rules return an `Outcome` (list of winners per issue).
 
 - **`run_experiments.py`**
   - Runs batch experiments across all cultures × rules × seeds.  
-  - Computes and saves manipulation risk metrics (trials, successes, harms, success rate, harm rate, risk = harms/successes).
+  - Computes and saves manipulation metrics consistent with the updated definition: trials, eligible, possible, successes, harms, success_rate, harm_rate, and risk = harms / possible.
   - Outputs:
         - results/combined.csv – consolidated numeric results
 
         - report/tables/combined.tex – LaTeX table for the report
 
 - **`plot_results.py`**
-  - Generates per-culture bar charts for manipulation risk metrics and a combined overview plot.
+  - Generates per-culture bar charts for success, harm, and risk metrics, plus an overview plot.
   - Plots saved under report/figures/.
 
 ---

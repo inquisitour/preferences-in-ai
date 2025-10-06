@@ -26,6 +26,19 @@ We study **free-riding** (strategic manipulation) in **multi-issue elections** u
 
 ---
 
+Free-riding operationalization (used in the experiments):
+
+A voter can attempt to free-ride on issue i only if they originally approved the winning candidate on i (eligible).
+
+We test a restricted deviation: drop that single approval on issue i; all other approvals stay truthful. The manipulation is counted as possible only if the winner on i does not change (non-pivotal).
+
+The rule is run on the manipulated profile, but the voter’s gain/harm is measured using their truthful utilities.
+
+Reported metrics: trials, eligible, possible, successes, harms, success_rate, harm_rate, and
+risk = harms / possible.
+
+---
+
 ## Quickstart
 
 ### 1) Install
@@ -45,11 +58,14 @@ Outputs:
 ```bash
 python -m experiments.plot_results
 ```
-Generates:
 
-Risk plots per culture and rule family
+Generates bar charts of success rate, harm rate, and risk (harms / possible):
 
-Overview plot saved to `report/figures/`.
+Per culture × family:
+report/figures/risk_<culture>_thiele.pdf and report/figures/risk_<culture>_owa.pdf
+
+Overview across all cultures:
+report/figures/risk_overview.pdf
 
 ### 4) Build the report (optional)
 Open `report/report.tex` in your LaTeX editor and compile. The table and figures are included automatically.

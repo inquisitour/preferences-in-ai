@@ -46,8 +46,7 @@ We focus on two major families of rules, following \cite{lackner2023freeriding}:
     Weighted Averages (OWAs). Following \cite{lackner2023freeriding}, we use
     normalized positive weights (no zeros) interpolating between utilitarian
     and leximin behavior. We evaluate parametric OWA rules with
-    $x \in \{1,5,10,15\}$, and include the explicit
-    \emph{leximin OWA} as the limiting case.
+    $x \in \{1,5,10,15\}$ and include an explicit \emph{leximin OWA} limit.
 \end{itemize}
 
 \subsection{Statistical Cultures}
@@ -66,15 +65,29 @@ We consider four cultures:
     small random perturbations.
 \end{itemize}
 
+\subsection{Free-Riding Notion Used in the Experiments}
+We adopt the paper’s definition and apply the following operationalization:
+(i) a voter can attempt to free-ride on issue $i$ only if she \emph{originally
+approved the winning candidate} on $i$; (ii) to test manipulation, we replace
+the ballot on issue $i$ by a \emph{restricted} deviation that drops that single
+approval (all other approvals are kept fixed), and we require that the winner on
+issue $i$ \emph{remains unchanged} (the voter is non-pivotal on $i$); (iii) the
+election outcome is recomputed using the manipulated profile, but the voter’s
+gain/loss is assessed with her \emph{truthful} utilities.
+This deviation class is a subset of all free-riding deviations discussed in
+\cite{lackner2023freeriding} but is sufficient for our experiments.
+
 \subsection{Risk Metrics}
 We evaluate manipulation opportunities using the following metrics:
 \begin{itemize}
-    \item \textbf{Trials:} total number of manipulation attempts.
-    \item \textbf{Successes:} number of manipulations that improved the manipulator’s outcome.
-    \item \textbf{Harms:} number of manipulations that backfired on the manipulator.
-    \item \textbf{Success rate:} proportion of trials with a successful manipulation.
-    \item \textbf{Harm rate:} proportion of trials with a harmful manipulation.
-    \item \textbf{Risk:} ratio of harms to successes (conditional probability of harmful manipulation).
+    \item \textbf{Trials:} total number of voter–issue pairs considered ($n \times k$).
+    \item \textbf{Eligible:} \# pairs where the voter originally approved the winner.
+    \item \textbf{Possible:} \# eligible pairs where dropping that single approval leaves the winner unchanged.
+    \item \textbf{Successes:} \# possible pairs where the voter’s truthful utility increases.
+    \item \textbf{Harms:} \# possible pairs where the voter’s truthful utility decreases.
+    \item \textbf{Success rate:} $\text{successes} / \text{trials}$.
+    \item \textbf{Harm rate:} $\text{harms} / \text{trials}$.
+    \item \textbf{Risk:} $\text{harms} / \text{possible}$ (conditional probability of harmful manipulation).
 \end{itemize}
 
 \section{Methodology}
@@ -92,10 +105,10 @@ The main parameters used in our experiments are:
     \item Number of issues: $k=5$
     \item Candidates per issue: $c=4$
     \item Random seeds: $200$
-    \item Cultures and hyperparameters: as defined in the previous subsection.
+    \item Cultures and hyperparameters: as defined above.
 \end{itemize}
 
-All configurations were executed using our unified experimental pipeline,
+All configurations were executed using a unified experimental pipeline,
 which produces both tabular summaries and risk plots.
 
 \section{Results}
@@ -108,7 +121,8 @@ pipeline. The table below is included directly from the output file:
 \input{tables/combined.tex}
 }
 \caption{Combined results across cultures and rules. Risk metrics include trials,
-successes, harms, success and harm rates, and risk (harms/successes).}
+eligible, possible, successes, harms, success/harm rates, and risk
+(defined as harms/possible).}
 \label{tab:combined}
 \end{table}
 
@@ -123,10 +137,11 @@ for each statistical culture.
 \includegraphics[width=0.7\textwidth]{figures/risk_p_ic_owa.pdf}
 \caption{Manipulation risk under p-IC culture. Top: Thiele rules. Bottom: OWA rules.}
 \end{figure}
-Under p-IC, both Thiele and OWA families show mild manipulation rates.
-OWA rules exhibit slightly lower success and harm rates, while leximin remains
-largely immune. This matches the expected robustness of random independent
-preferences.
+Under p-IC, the utilitarian rule is immune (zero across all metrics). Within Thiele and
+OWA families, success rates are small but increase with the family parameter $x$; harms
+remain tiny, and risk (harms/possible) is near zero. In our runs, the leximin extreme
+shows the largest success within OWA, consistent with the trend that moving away from
+utilitarian slightly increases exploitable opportunities.
 
 \paragraph{Disjoint Groups.}
 \begin{figure}[h!]
@@ -135,9 +150,8 @@ preferences.
 \includegraphics[width=0.7\textwidth]{figures/risk_disjoint_owa.pdf}
 \caption{Manipulation risk under disjoint-group culture. Top: Thiele rules. Bottom: OWA rules.}
 \end{figure}
-Disjoint group structures introduce correlated preferences. Manipulation success
-increases slightly for Thiele rules, but harm rates stay very low, indicating that
-free-riding is relatively safe when preferences are clustered.
+Correlated group structure reduces overall opportunities compared to p-IC. Success
+rates remain low across both families; harms are close to zero and risk is negligible.
 
 \paragraph{Resampling Model.}
 \begin{figure}[h!]
@@ -146,9 +160,8 @@ free-riding is relatively safe when preferences are clustered.
 \includegraphics[width=0.7\textwidth]{figures/risk_resampling_owa.pdf}
 \caption{Manipulation risk under resampling culture. Top: Thiele rules. Bottom: OWA rules.}
 \end{figure}
-The resampling culture yields intermediate results between p-IC and disjoint.
-Thiele and OWA rules exhibit low but nonzero manipulation potential. Higher $x$
-values slightly increase risk, consistent with greater proportionality.
+Resampling yields patterns similar to p-IC: utilitarian is immune; success rates increase
+modestly with $x$ in both families; harms and risk remain very small.
 
 \paragraph{Hamming Noise.}
 \begin{figure}[h!]
@@ -157,53 +170,43 @@ values slightly increase risk, consistent with greater proportionality.
 \includegraphics[width=0.7\textwidth]{figures/risk_hamming_owa.pdf}
 \caption{Manipulation risk under Hamming-noise culture. Top: Thiele rules. Bottom: OWA rules.}
 \end{figure}
-Hamming perturbations add random noise to structured preferences. As expected,
-this causes mild increases in both success and harm rates. Leximin remains
-mostly stable, confirming its resilience to random perturbations.
+Noise adds mild random perturbations but preserves the qualitative trends:
+utilitarian stays immune; success rises slightly with $x$; harms and risk remain
+near zero.
 
 \section{Discussion}
 Our experiments highlight the dependence of manipulation risk on both the
 voting rule and the statistical culture.
 
 \paragraph{Effect of Statistical Cultures.}
-The \emph{p-IC} culture exhibits moderate manipulation opportunities.
-The \emph{disjoint} model produces clearer group structures, increasing the
-chance that one group can manipulate effectively. The \emph{resampling} model
-shows behavior similar to p-IC but slightly more correlated outcomes, while
-\emph{Hamming noise} introduces random fluctuations that may both increase or
-reduce risks depending on the rule.
+The \emph{p-IC} and \emph{resampling} cultures show modest manipulation opportunities.
+The \emph{disjoint} model has fewer opportunities overall. \emph{Hamming noise} perturbs
+preferences slightly but does not qualitatively change the picture.
 
 \paragraph{Effect of Voting Rules.}
 The \emph{utilitarian rule} (equivalently mean OWA) is immune to manipulation.
-Thiele rules with larger $x$ increase proportionality but also marginally
-increase free-riding potential. OWA rules interpolate between utilitarian and
-leximin: intermediate parameters show moderate manipulation risks, while the
-\emph{leximin rule} remains the most resistant to manipulation, in line with
-our results (very low success and harm rates).
+For both Thiele and OWA families, moving away from the utilitarian endpoint
+(flarger $x$ in our parameterization) increases the fraction of successful free-rides,
+while harm remains rare; consequently, risk (harms/possible) stays very small.
 
 \paragraph{Risk Metrics.}
-Across all settings, harm rates remain small but nonzero, confirming that
-attempts at manipulation carry measurable risks. The ratio of harms to
-successes (\emph{risk}) stays well below 1, indicating that manipulators more
-often succeed than fail—but not without potential downsides.
+Across all settings, harms are rare relative to both trials and possible cases,
+and the risk measure (harms/possible) is consistently close to zero.
+Taken together, manipulators succeed more often than they harm themselves under
+the restricted deviation class we test.
 
 \section{Conclusion}
-Our experiments confirm that the choice of statistical culture strongly
-influences manipulation risks. Cultures with correlated preferences (e.g.,
-disjoint, resampling) can increase opportunities for manipulation, while random
-noise can unpredictably alter them.
-
-Across voting rules, utilitarian aggregation is immune. Thiele and OWA rules
-illustrate clear trade-offs: increasing fairness or proportionality often
-slightly increases manipulation risk, but leximin consistently shows the
-highest robustness. These findings align closely with the theoretical and
-empirical trends observed by \cite{lackner2023freeriding}.
+The choice of statistical culture influences the frequency of free-riding
+opportunities, but the qualitative ranking across voting rules is stable in our
+experiments. Utilitarian is immune; within Thiele/OWA families, higher~$x$ values
+show somewhat more manipulability, yet harms remain rare and risk is small.
+These findings are compatible with the trends discussed by \cite{lackner2023freeriding}
+under our (restricted) deviation model.
 
 Future work could extend these experiments by exploring richer parameter grids
-for $(p,\phi)$ and $\epsilon$, as well as scaling to larger electorates or
-mixed-issue dependencies. Replicating the visualization style of
-\cite{lackner2023freeriding} for welfare and risk together would further
-improve interpretability.
+for $(p,\phi)$ and $\epsilon$, by scaling to larger electorates, and by testing
+the full family of admissible free-riding deviations described in
+\cite{lackner2023freeriding} (beyond single-approval drops).
 
 \section*{Repository}
 The full project code and report sources are available at: \\

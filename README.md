@@ -1,7 +1,7 @@
 # Preferences in AI – Free-Riding in Sequential Voting
 
 This project replicates and extends the experiments from  
-**Lackner & al. (2023), "Free-Riding in Sequential Multi-Winner Voting"**.
+**Lackner & al. (2023), "Free-Riding in Multi-Issue Decisionsg"**.
 
 We study **free-riding** (strategic manipulation) in **multi-issue elections** under different **statistical cultures** and voting rules.
 

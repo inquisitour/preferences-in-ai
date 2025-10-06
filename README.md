@@ -26,7 +26,7 @@ We study **free-riding** (strategic manipulation) in **multi-issue elections** u
 
 ---
 
-Free-riding operationalization (used in the experiments):
+## Free-riding operationalization (used in the experiments):
 
 A voter can attempt to free-ride on issue i only if they originally approved the winning candidate on i (eligible).
 
@@ -106,6 +106,6 @@ docs/                 # Detailed code documentation
 
 ## References
 
-- Lackner, M., Maly, J., & Schmidt-Kraepelin, U. (2023).  
-  *Free-Riding in Sequential Multi-Winner Voting*.  
+- Lackner, M., Maly, J., & Nardi, O. (2023).  
+  *Free-Riding in Multi-Issue Decisions*.  
   [Free Riding (PDF)](https://dbai.tuwien.ac.at/staff/jmaly/freeriding.pdf)
